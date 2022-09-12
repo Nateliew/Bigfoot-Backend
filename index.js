@@ -3,19 +3,27 @@ const express = require("express");
 require("dotenv").config();
 
 // importing Routers
+const CategoriesRouter = require("./routers/categoriesRouter");
 const SightingsRouter = require("./routers/sightingsRouter");
 
 // importing Controllers
+const CategoriesController = require("./controllers/categoriesController");
 const SightingsController = require("./controllers/sightingsController");
 
 // importing DB
 const db = require("./db/models/index");
-const { comment, sighting } = db;
+const { category, comment, sighting } = db;
 
 // initializing Controllers -> note the lowercase for the first word
-const sightingsController = new SightingsController(sighting, comment);
+const categoriesController = new CategoriesController(category);
+const sightingsController = new SightingsController(
+  sighting,
+  category,
+  comment
+);
 
-// inittializing Routers
+// initializing Routers
+const categoriesRouter = new CategoriesRouter(categoriesController).routes();
 const sightingRouter = new SightingsRouter(sightingsController).routes();
 
 const PORT = process.env.PORT;
@@ -27,6 +35,8 @@ app.use(cors());
 app.use(express.json());
 
 // using the routers
+app.use("/categories", categoriesRouter);
+
 app.use("/sightings", sightingRouter);
 
 app.listen(PORT, () => {
